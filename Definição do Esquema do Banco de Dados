@@ -1,0 +1,114 @@
+-- Tabela de clientes: Armazena informações básicas dos clientes, como nome, telefone, email e endereço.
+-- A chave primária é o customer_id, que identifica cada cliente de forma única.
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    first_name NVARCHAR(50),
+    last_name NVARCHAR(50),
+    phone NVARCHAR(15),
+    email NVARCHAR(100),
+    street NVARCHAR(100),
+    city NVARCHAR(50),
+    state NVARCHAR(50),
+    zip_code NVARCHAR(10)
+);
+
+-- Tabela de pedidos: Registra os pedidos feitos pelos clientes, incluindo datas e status.
+-- A chave primária é o order_id, que identifica cada pedido.
+-- As chaves estrangeiras customer_id, store_id e staff_id conectam o pedido ao cliente, loja e funcionário responsável.
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_status NVARCHAR(50),
+    order_date DATE,
+    required_date DATE,
+    shipped_date DATE,
+    store_id INT,
+    staff_id INT,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (store_id) REFERENCES stores(store_id),
+    FOREIGN KEY (staff_id) REFERENCES staffs(staff_id)
+);
+
+-- Tabela de funcionários: Contém dados dos funcionários, como nome, contato e se estão ativos.
+-- A chave primária é o staff_id, que identifica cada funcionário.
+-- A chave estrangeira store_id liga o funcionário à loja onde trabalha, e manager_id indica quem é o gerente do funcionário.
+CREATE TABLE staffs (
+    staff_id INT PRIMARY KEY,
+    first_name NVARCHAR(50),
+    last_name NVARCHAR(50),
+    email NVARCHAR(100),
+    phone NVARCHAR(15),
+    active BIT,
+    store_id INT,
+    manager_id INT,
+    FOREIGN KEY (store_id) REFERENCES stores(store_id),
+    FOREIGN KEY (manager_id) REFERENCES staffs(staff_id)
+);
+
+-- Tabela de lojas: Armazena informações das lojas, como nome, contato e endereço.
+-- A chave primária é o store_id, que identifica cada loja de forma única.
+CREATE TABLE stores (
+    store_id INT PRIMARY KEY,
+    store_name NVARCHAR(100),
+    phone NVARCHAR(15),
+    email NVARCHAR(100),
+    street NVARCHAR(100),
+    city NVARCHAR(50),
+    state NVARCHAR(50),
+    zip_code NVARCHAR(10)
+);
+
+-- Tabela de categorias: Define as categorias dos produtos, como eletrônicos, roupas, etc.
+-- A chave primária é o category_id, que identifica cada categoria.
+CREATE TABLE categories (
+    category_id INT PRIMARY KEY,
+    category_name NVARCHAR(100)
+);
+
+-- Tabela de produtos: Contém detalhes dos produtos, como nome, marca, categoria e preço.
+-- A chave primária é o product_id, que identifica cada produto.
+-- As chaves estrangeiras brand_id e category_id vinculam o produto à sua marca e categoria.
+CREATE TABLE products (
+    product_id INT PRIMARY KEY,
+    product_name NVARCHAR(100),
+    brand_id INT,
+    category_id INT,
+    model_year INT,
+    list_price DECIMAL(10, 2),
+    FOREIGN KEY (brand_id) REFERENCES brands(brand_id),
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- Tabela de estoques: Controla a quantidade de cada produto disponível em cada loja.
+-- A chave primária composta (store_id, product_id) garante que cada combinação de loja e produto seja única.
+-- As chaves estrangeiras store_id e product_id conectam o estoque à loja e ao produto.
+CREATE TABLE stocks (
+    store_id INT,
+    product_id INT,
+    quantity INT,
+    PRIMARY KEY (store_id, product_id),
+    FOREIGN KEY (store_id) REFERENCES stores(store_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+-- Tabela de itens de pedido: Registra os itens específicos de cada pedido, com quantidade e preço.
+-- A chave primária composta (order_id, item_id) garante que cada item em um pedido seja único.
+-- As chaves estrangeiras order_id e product_id vinculam o item ao pedido e ao produto.
+CREATE TABLE order_items (
+    order_id INT,
+    item_id INT,
+    product_id INT,
+    quantity INT,
+    list_price DECIMAL(10, 2),
+    discount DECIMAL(5, 2),
+    PRIMARY KEY (order_id, item_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+-- Tabela de marcas: Armazena as marcas dos produtos, como Nike, Samsung, etc.
+-- A chave primária é o brand_id, que identifica cada marca de forma única.
+CREATE TABLE brands (
+    brand_id INT PRIMARY KEY,
+    brand_name NVARCHAR(100)
+);
